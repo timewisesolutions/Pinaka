@@ -60,6 +60,7 @@ const routes = [
   },
 ]
 const Sidebar = () => {
+  const pathname = usePathname()
   return (
     <div className="py-4 flex flex-col h-full text-white bg-gray-800">
       <div className="px-4 flex-1">
@@ -81,7 +82,14 @@ const Sidebar = () => {
         <div className="my-6 justify-between">
           {routes.map((route) => (
             <Link href={route.href} key={route.href}>
-              <div className="flex items-center pl-3 py-2 hover:text-white hover:bg-white/10 cursor-pointer rounded text-sm font-medium transition">
+              <div
+                className={cn(
+                  'flex items-center pl-3 py-2 hover:text-white hover:bg-white/10 cursor-pointer rounded text-sm font-medium transition',
+                  pathname === route.href
+                    ? 'text-white bg-white/10'
+                    : 'text-zinc-400'
+                )}
+              >
                 <route.icon
                   className={cn('w-4 h-4 mr-2', route.color)}
                 ></route.icon>
