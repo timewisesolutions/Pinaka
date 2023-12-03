@@ -1,13 +1,13 @@
 'use client'
 import { MessageSquare } from 'lucide-react'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
-
+import { OpenAI } from 'openai'
 import Heading from '@/components/heading'
+import { formSchema } from './constants'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -15,18 +15,17 @@ import { Empty } from '@/components/empty'
 import { Loader } from '@/components/loader'
 import { UserAvatar } from '@/components/user-avatar'
 import { BotAvatar } from '@/components/bot-avatar'
-import { formSchema } from './constants'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
-
-type Conversation = {
-  content: string
-  sender: 'user' | 'bot'
-}
-
 const Conversations = () => {
   const router = useRouter()
-  const [messages, setMessages] = useState<Conversation[]>([])
+  //const [messages, setMessages] = useState<OpenAI.ChatCompletionMessageParam[]>(
+  //[]
+  //)
 
+  const [messages, setMessages] = useState<OpenAI.ChatCompletionMessageParam[]>(
+    []
+  )
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,19 +38,18 @@ const Conversations = () => {
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const userMessage: string = values.prompt
-      const newMessages = [
-        ...messages,
-        { content: userMessage, sender: 'user' },
-      ]
+      // ChatCompletionMessageParam
+      const userMessage: OpenAI.ChatCompletionMessageParam = {
+        role: 'user',
+        content: values.prompt,
+      }
+
+      const newMessages = [...messages, userMessage]
+      console.log('newMessages rxd:', newMessages)
       const response = await axios.post('/api/conversations', {
-        messages: newMessages.map((message) => message.content), // Send only message content to the server
+        messages: newMessages,
       })
-      setMessages((current) => [
-        ...current,
-        { content: userMessage, sender: 'user' },
-        { content: response.data.kwargs.content, sender: 'bot' },
-      ])
+      setMessages((current) => [...current, userMessage, response.data])
       form.reset()
     } catch (error: any) {
       console.log(error)
@@ -111,19 +109,33 @@ const Conversations = () => {
                 <Empty label="Start a conversation" />
               </div>
             )}
-            <div className="flex flex-col-reverse gap-y-4">
+            <div className="flex flex-col-reverse space-y-4">
               {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    'p-8 w-full flex items-start gap-x-8 rounded-lg',
-                    message.sender === 'user'
-                      ? 'bg-white border border-black/10'
-                      : 'bg-muted'
+                <div key={index}>
+                  {Array.isArray(message.content) ? (
+                    // If content is an array of type ChatCompletionContentPart
+                    // ChatCompletionContentPart= ContentPartText | ContentPartImage;
+                    // Currently we do not use any of these. Just ignore and do not display anything
+                    <div>
+                      {message.content.map((part, partIndex) => (
+                        <p key={partIndex} className="text-sm"></p>
+                      ))}
+                    </div>
+                  ) : (
+                    // If content is a string (this is our valid case for now)
+                    //content: string | Array<ChatCompletionContentPart> | null;
+                    <div
+                      className={cn(
+                        'p-8 w-full flex items-start gap-x-8 rounded-lg',
+                        message.role === 'user'
+                          ? 'bg-white border border-black/10'
+                          : 'bg-muted'
+                      )}
+                    >
+                      {message.role === 'user' ? <UserAvatar /> : <BotAvatar />}
+                      <p className="text-sm">{message.content}</p>
+                    </div>
                   )}
-                >
-                  {message.sender === 'user' ? <UserAvatar /> : <BotAvatar />}
-                  <p className="text-sm">{message.content}</p>
                 </div>
               ))}
             </div>
