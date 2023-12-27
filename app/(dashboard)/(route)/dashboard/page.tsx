@@ -8,6 +8,7 @@ import {
   MusicIcon,
   VideoIcon,
 } from 'lucide-react'
+import { FaFilePdf } from 'react-icons/fa6'
 import { useRouter } from 'next/navigation'
 
 import { Card } from '@/components/ui/card'
@@ -28,6 +29,7 @@ const aiTools = [
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/10',
   },
+  /*
   {
     label: 'Video Generation',
     icon: VideoIcon,
@@ -42,12 +44,20 @@ const aiTools = [
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
   },
+  */
   {
     label: 'Code Generation',
     icon: CodeIcon,
     href: '/code',
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10',
+  },
+  {
+    label: 'PDF collaborator',
+    icon: FaFilePdf,
+    href: '/pdf',
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/10',
   },
 ]
 

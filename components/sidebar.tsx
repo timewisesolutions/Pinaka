@@ -9,6 +9,7 @@ import {
   Settings,
   VideoIcon,
 } from 'lucide-react'
+import { FaFilePdf } from 'react-icons/fa6'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Montserrat } from 'next/font/google'
@@ -35,6 +36,7 @@ const routes = [
     href: '/image',
     color: 'text-pink-500',
   },
+  /*
   {
     label: 'Video Generation',
     icon: VideoIcon,
@@ -47,11 +49,18 @@ const routes = [
     href: '/music',
     color: 'text-orange-500',
   },
+  */
   {
     label: 'Code Generation',
     icon: Code,
     href: '/code',
     color: 'text-emerald-500',
+  },
+  {
+    label: 'PDF collaborator',
+    icon: FaFilePdf,
+    href: '/pdf',
+    color: 'text-red-500',
   },
   {
     label: 'Settings',
